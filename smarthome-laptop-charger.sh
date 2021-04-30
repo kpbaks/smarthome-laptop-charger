@@ -12,13 +12,12 @@ UPPER_LIMIT=80
 get_battery_level () {
     acpi | \
     tail --lines 1 | \
-    grep --only-matching --extended-regexp '[0-9]{1,2}%' | \
+    grep --only-matching --extended-regexp '[0-9]{1,3}%' | \
     grep --only-matching '[0-9]*'
 }
 
 
 while true; do
-    echo "we are running!"
     BATTERY_PERCENTAGE=$(get_battery_level)
     POWER_PLUG_STATE=""
 
@@ -32,7 +31,8 @@ while true; do
     fi
 
     if [[ -n "${POWER_PLUG_STATE}" ]]; then
-        MSG="{\"state\": ${POWER_PLUG_STATE} }"
+        MSG="{\"state\": \"${POWER_PLUG_STATE}\" }"
+        echo "change state"
         mosquitto_pub --host ${HOST} --port ${MQTT_PORT} --topic ${TOPIC} --message "${MSG}"
     fi
     
